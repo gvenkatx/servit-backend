@@ -201,7 +201,8 @@ def create_routeplans():
     headers = {"Content-Type": "application/json", "Accept": "text/plain"}
     resp = requests.post(timefold_url, headers = headers, data=json.dumps(routeplaninput))
     timefold_jobid = str(resp.text)
-    print(timefold_jobid)
+    with open('./timefold_jobid.txt', 'w') as outfile:
+        outfile.write(timefold_jobid)
 
     time.sleep(60)
 
