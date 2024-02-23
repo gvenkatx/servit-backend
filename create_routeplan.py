@@ -49,25 +49,22 @@ def read_collection(collection_name, document_id, result_list, persona):
     if doc_snapshot.exists:
         # Access the document data
         doc_data = doc_snapshot.to_dict()
+        add_data_flag = False
         if (persona=='customer' and doc_data['minStartTime'].date() == routeplan_day):
             hardcode_values = {'serviceDuration':1200.000000000, 'vehicle':None, 'previousCustomer':None, 'nextCustomer': None,
                                 'arrivalTime':None, 'startServiceTime':None, 'departureTime':None,
                                 'drivingTimeSecondsFromPreviousStandstill': None}
             doc_data.update(hardcode_values)
-
-            for key in doc_data:
-                if isinstance(doc_data[key], GeoPoint):
-                    doc_data[key] = [doc_data[key].latitude, doc_data[key].longitude]
-
-                if isinstance(doc_data[key], datetime):
-                    doc_data[key] = doc_data[key].strftime("%Y-%m-%d" + "T" + "%H:%M:%S")
-
-            result_list.append(doc_data)
-
-        if (persona=='teendriver' and doc_data['departuretime'].date() == routeplan_day):
+            add_data_flag = True
+        elif (persona=='teendriver' and doc_data['departuretime'].date() == routeplan_day):
             hardcode_values = {'customers':[], 'totalDemand':0, 'totalDrivingTimeSeconds':0}
             doc_data.update(hardcode_values)
+            add_data_flag = True 
+        elif (persona=='org'):
+            add_data_flag = True
+        else: None
 
+        if add_data_flag:
             for key in doc_data:
                 if isinstance(doc_data[key], GeoPoint):
                     doc_data[key] = [doc_data[key].latitude, doc_data[key].longitude]
@@ -76,7 +73,6 @@ def read_collection(collection_name, document_id, result_list, persona):
                     doc_data[key] = doc_data[key].strftime("%Y-%m-%d" + "T" + "%H:%M:%S")
 
             result_list.append(doc_data)
-        
 
 #Main function to read from firebase and create route plan input
 def read_routeplan_input(routeplaninput):
