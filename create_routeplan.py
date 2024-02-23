@@ -212,7 +212,7 @@ def create_routeplans():
     resp = requests.get(timefold_url + '/' + timefold_jobid, headers = {"Accept": "application/json"})
     routeplanoutput = resp.json()
 
-    routeplan_output_file = 'timefold_output'+datetime.now().strftime(format)+'.json'
+    routeplan_output_file = 'routeplan_output'+datetime.now().strftime(format)+'.json'
     with open(routeplan_output_file, 'w') as out_file:
         json.dump(routeplanoutput, out_file, indent=2)
 
