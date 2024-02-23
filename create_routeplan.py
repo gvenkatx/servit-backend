@@ -106,10 +106,8 @@ def read_routeplan_input(routeplaninput):
         read_collection(collection_donor, doc_id, consolidated_data1, 'customer')
 
     # Teen Code
-    print(consolidated_data2)
     for doc_id in document_idsB:
         read_collection(collection_driver, doc_id, consolidated_data2, 'teendriver')
-    print(consolidated_data2)
 
     # Charitable Orgs
     for doc_id in document_idsC:
@@ -220,7 +218,7 @@ def create_routeplans():
 
 
     parse_routeplan_output(routeplanoutput)
-    return(1)
+    return("Success")
 
 
 if __name__ == '__main__':
