@@ -213,9 +213,11 @@ def create_routeplans():
     with open(routeplan_output_file, 'w') as out_file:
         json.dump(routeplanoutput, out_file, indent=2)
 
-
-    parse_routeplan_output(routeplanoutput)
-    return("Success")
+    if 'message' in routeplanoutput:
+        return(routeplanoutput['message'])
+    else:
+        #parse_routeplan_output(routeplanoutput)
+        return("Success")
 
 
 if __name__ == '__main__':
