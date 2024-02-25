@@ -34,7 +34,7 @@ def hr_min_from_seconds(seconds):
     #minutes, seconds = divmod(seconds, 60)
     #hours, minutes = divmod(minutes, 60)
     #return (str(hours) + ' hr, ' + str(minutes) + ' min')
-    return(seconds//60)
+    return(round(seconds/60))
 
 
 # Utility function for gathering data from firebase documents
@@ -138,9 +138,9 @@ def parse_routeplan_output(routeplanoutput):
         cust['address'] = reverse_loc(cust['location'])
 
     vehicles = [veh for veh in routeplanoutput['vehicles'] if veh['customers']]
-    #vehicles2 = [veh for veh in vehicles1 if date_from_str(veh['departureTime']) <= routeplan_day]
 
     routeplans = []
+    teenmetrics = []
     routeplan_day_str = routeplan_day.strftime('%b %d, %Y')
     for veh in vehicles:
         #print(veh)
@@ -149,6 +149,7 @@ def parse_routeplan_output(routeplanoutput):
         from_loc = GeoPoint(depot[0]['location'][0], depot[0]['location'][1])
         driving_hours_earned = hr_min_from_seconds(veh['totalDrivingTimeSeconds'])
         stop_num = 0
+        service_duration = 0
         for cust_id in veh['customers']:
             route_entry = {}
             stop_num += 1
@@ -156,6 +157,7 @@ def parse_routeplan_output(routeplanoutput):
             stop_addr = cust[0]['address']
             stop_loc = GeoPoint(cust[0]['location'][0], cust[0]['location'][1])
             stop_name = cust[0]['name']
+            service_duration += hr_min_from_seconds(cust[0]['serviceDuration'])
 
             route_entry = {'teenid': veh['id'], 'drivinghoursearned': driving_hours_earned, 'routecreateddt':routeplan_datetime,
                         'StopNumber':stop_num, 'donorname': stop_name, 'ToAddress': stop_addr, 'ToLat': stop_loc,
@@ -168,16 +170,41 @@ def parse_routeplan_output(routeplanoutput):
         stop_num += 1
         stop_addr = depot[0]['address']
         stop_loc = GeoPoint(depot[0]['location'][0], depot[0]['location'][1])
+
         route_entry = {'teenid': veh['id'], 'drivinghoursearned': driving_hours_earned, 'routecreateddt':routeplan_datetime,
                         'StopNumber':stop_num, 'donorname': '', 'ToAddress': stop_addr, 'ToLat': stop_loc,
                         'FromAddress': from_addr, 'FromLat': from_loc, 'servicehoursearned': driving_hours_earned}
         routeplans.append(route_entry)
 
+        tm_entry = {'id': veh['id'], 'dateserved': routeplan_datetime, 'drivinghoursearned': driving_hours_earned,
+                    'servicehoursearned': driving_hours_earned+service_duration, 'cansdonated': veh['totalDemand']}
+        teenmetrics.append(tm_entry)
+
+
     db = firestore.client()
+
     rplan_collection = db.collection('routeplanui')
     for rplan in routeplans:
         doc_id = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20))
-        rplan_collection.document(doc_id).set(rplan)
+        rplan_collection.document(doc_id).set(rplan) 
+
+
+    metric_collection = db.collection('teenmetrics')
+    for tm_entry in teenmetrics:
+        docs = metric_collection.where('id','==',tm_entry['id']).get()
+        if docs:
+            doc_id = docs[0].id
+            curr_data = docs[0].to_dict()
+            curr_totaldrivinghours = curr_data['totaldrivinghours']
+            curr_totalservicehours = curr_data['totalservicehours']
+        else:
+            doc_id = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20))
+            curr_totaldrivinghours = 0
+            curr_totalservicehours = 0
+        tm_entry['totaldrivinghours'] = curr_totaldrivinghours + tm_entry['drivinghoursearned']
+        tm_entry['totalservicehours'] = curr_totalservicehours + tm_entry['servicehoursearned']
+        metric_collection.document(doc_id).set(tm_entry)
+    #print(teenmetrics)
 
 
 
@@ -216,7 +243,7 @@ def create_routeplans():
     if 'message' in routeplanoutput:
         return(routeplanoutput['message'])
     else:
-        #parse_routeplan_output(routeplanoutput)
+        parse_routeplan_output(routeplanoutput)
         return("Success")
 
 
