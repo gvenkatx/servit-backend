@@ -163,7 +163,7 @@ def parse_routeplan_output(routeplanoutput):
         stops_lat_long.append((depot[0]['location'][0], depot[0]['location'][1]))
         gmaps_url += "/"+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
         (total_distance_miles, total_duration_minutes) = route_distance_and_duration(stops_lat_long, maps_api_key)
-        print(f"Total Distance: {total_distance_miles} miles, Total Duration: {total_duration_minutes} minutes")
+        #print(f"Total Distance: {total_distance_miles} miles, Total Duration: {total_duration_minutes} minutes")
 
         route_entry = {'teenid': veh['id'], 'drivinghoursearned': driving_hours_earned, 'routecreateddt':routeplan_datetime,
                         'StopNumber':stop_num, 'donorname': '', 'ToAddress': stop_addr, 'ToLat': stop_loc,
@@ -181,8 +181,12 @@ def parse_routeplan_output(routeplanoutput):
     rplan_collection = db.collection('routeplanui')
     for rplan in routeplans:
         doc_id = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20))
-        #rplan_collection.document(doc_id).set(rplan)
+        rplan_collection.document(doc_id).set(rplan)
 
+    serveit_milesdriven = 0
+    serveit_drivinghours = 0
+    serveit_servicehours = 0
+    serveit_numdonated = 0
     metric_collection = db.collection('teenmetrics')
     for tm_entry in teenmetrics:
         docs = metric_collection.where('id','==',tm_entry['id']).get()
@@ -197,11 +201,28 @@ def parse_routeplan_output(routeplanoutput):
             curr_totaldrivinghours = 0
             curr_totalservicehours = 0
             curr_totalmilesdriven = 0
+        
         tm_entry['totaldrivinghours'] = curr_totaldrivinghours + tm_entry['drivinghoursearned']
         tm_entry['totalservicehours'] = curr_totalservicehours + tm_entry['servicehoursearned']
         tm_entry['totalmilesdriven'] = curr_totalmilesdriven + tm_entry['milesdriven']
-        #metric_collection.document(doc_id).set(tm_entry)
-    print(teenmetrics)
+        metric_collection.document(doc_id).set(tm_entry)
+
+        serveit_milesdriven += tm_entry['totalmilesdriven']
+        serveit_drivinghours += tm_entry['totaldrivinghours']
+        serveit_servicehours += tm_entry['totalservicehours']
+        serveit_numdonated += tm_entry['cansdonated']
+    #print(teenmetrics)
+    serveit_metrics = {'totalmilesdriven': serveit_milesdriven, 'totaldrivinghours': serveit_drivinghours,
+                       'totalservicehours': serveit_servicehours, 'numdonated': serveit_numdonated}
+    serveit_collection = db.collection('serveitmetrics')
+    docs = serveit_collection.get()
+    if docs:
+        doc_id = docs[0].id
+    else:
+        doc_id = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20))
+    serveit_collection.document(doc_id).set(serveit_metrics)
+    #print(serveit_metrics)
+
 
 
 #Main app

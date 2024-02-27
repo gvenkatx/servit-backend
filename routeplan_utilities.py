@@ -39,7 +39,7 @@ def get_distance_and_duration(origin_lat_long, destination_lat_long, api_key):
         duration = data['rows'][0]['elements'][0]['duration']['text']
         return distance, duration
     else:
-        print("Error:", data.get('error_message', 'Failed to get a valid response'))
+        #print("Error:", data.get('error_message', 'Failed to get a valid response'))
         return None, None
 
 def parse_distance(distance_str):
@@ -75,7 +75,7 @@ def route_distance_and_duration(stops_lat_long, api_key):
             total_distance_miles += distance_miles
             total_duration_minutes += duration_minutes
             
-            print(f"From {origin_lat_long} to {destination_lat_long}: Distance = {distance}, Duration = {duration}")
+            #print(f"From {origin_lat_long} to {destination_lat_long}: Distance = {distance}, Duration = {duration}")
 
     total_hours, total_mins = divmod(total_duration_minutes, 60)
     return(total_distance_miles, total_duration_minutes)
