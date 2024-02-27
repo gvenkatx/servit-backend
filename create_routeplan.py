@@ -8,8 +8,8 @@ from google.cloud.firestore_v1 import GeoPoint
 from datetime import date, datetime
 import requests
 import time
-from geopy.geocoders import GoogleV3
 from flask import Flask, request
+from routeplan_utilities import reverse_loc, hr_min_from_seconds, route_distance_and_duration
 
 firebase_cred = credentials.Certificate('./serviceAccountKey.json')
 fapp = firebase_admin.initialize_app(firebase_cred)
@@ -17,24 +17,10 @@ fapp = firebase_admin.initialize_app(firebase_cred)
 with open('./routeplanParams.json') as pfile:
     tfold_data = json.load(pfile)
 
+routeplan_url = tfold_data['timefold_url']
 routeplan_datetime = datetime.utcnow()
 routeplan_day = routeplan_datetime.date()
-
-#Utility functions
-def reverse_loc(lat_long):
-    #geolocator = Nominatim(user_agent="mytestapp")
-    geolocator = GoogleV3(api_key=tfold_data['maps_api_key'])
-    location = geolocator.reverse(str(lat_long[0])+","+str(lat_long[1]))
-    return location.address
-
-def date_from_str(datestr):
-    return datetime.strptime(datestr,'%Y-%m-%dT%H:%M:%S').date()
-
-def hr_min_from_seconds(seconds):
-    #minutes, seconds = divmod(seconds, 60)
-    #hours, minutes = divmod(minutes, 60)
-    #return (str(hours) + ' hr, ' + str(minutes) + ' min')
-    return(round(seconds/60))
+maps_api_key = tfold_data['maps_api_key']
 
 
 # Utility function for gathering data from firebase documents
@@ -132,10 +118,10 @@ def parse_routeplan_output(routeplanoutput):
     #    tout = json.load(outfile)
 
     for dep in routeplanoutput['depots']:
-        dep['address'] = reverse_loc(dep['location'])
+        dep['address'] = reverse_loc(dep['location'], maps_api_key)
 
     for cust in routeplanoutput['customers']:
-        cust['address'] = reverse_loc(cust['location'])
+        cust['address'] = reverse_loc(cust['location'], maps_api_key)
 
     vehicles = [veh for veh in routeplanoutput['vehicles'] if veh['customers']]
 
@@ -150,6 +136,7 @@ def parse_routeplan_output(routeplanoutput):
         gmaps_url = "http://google.com/maps/dir/"+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
         driving_hours_earned = hr_min_from_seconds(veh['totalDrivingTimeSeconds'])
         stop_num = 0
+        stops_lat_long = [(depot[0]['location'][0], depot[0]['location'][1])]
         service_duration = 0
         for cust_id in veh['customers']:
             route_entry = {}
@@ -157,6 +144,7 @@ def parse_routeplan_output(routeplanoutput):
             cust = list(filter(lambda d: d['id'] == cust_id, routeplanoutput['customers']))
             stop_addr = cust[0]['address']
             stop_loc = GeoPoint(cust[0]['location'][0], cust[0]['location'][1])
+            stops_lat_long.append((cust[0]['location'][0], cust[0]['location'][1]))
             gmaps_url += "/"+str(cust[0]['location'][0])+","+str(cust[0]['location'][1])
             stop_name = cust[0]['name']
             service_duration += hr_min_from_seconds(cust[0]['serviceDuration'])
@@ -172,16 +160,19 @@ def parse_routeplan_output(routeplanoutput):
         stop_num += 1
         stop_addr = depot[0]['address']
         stop_loc = GeoPoint(depot[0]['location'][0], depot[0]['location'][1])
+        stops_lat_long.append((depot[0]['location'][0], depot[0]['location'][1]))
         gmaps_url += "/"+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
+        (total_distance_miles, total_duration_minutes) = route_distance_and_duration(stops_lat_long, maps_api_key)
+        print(f"Total Distance: {total_distance_miles} miles, Total Duration: {total_duration_minutes} minutes")
 
         route_entry = {'teenid': veh['id'], 'drivinghoursearned': driving_hours_earned, 'routecreateddt':routeplan_datetime,
                         'StopNumber':stop_num, 'donorname': '', 'ToAddress': stop_addr, 'ToLat': stop_loc,
                         'FromAddress': from_addr, 'FromLat': from_loc, 'servicehoursearned': driving_hours_earned}
         routeplans.append(route_entry)
 
-        tm_entry = {'id': veh['id'], 'dateserved': routeplan_datetime, 'drivinghoursearned': driving_hours_earned,
-                    'servicehoursearned': driving_hours_earned+service_duration, 'cansdonated': veh['totalDemand'],
-                    'routeplanurl': gmaps_url}
+        tm_entry = {'id': veh['id'], 'dateserved': routeplan_datetime, 'drivinghoursearned': total_duration_minutes,
+                    'servicehoursearned': total_duration_minutes+service_duration, 'cansdonated': veh['totalDemand'],
+                    'milesdriven': total_distance_miles, 'routeplanurl': gmaps_url}
         teenmetrics.append(tm_entry)
 
 
@@ -190,8 +181,7 @@ def parse_routeplan_output(routeplanoutput):
     rplan_collection = db.collection('routeplanui')
     for rplan in routeplans:
         doc_id = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20))
-        rplan_collection.document(doc_id).set(rplan)
-
+        #rplan_collection.document(doc_id).set(rplan)
 
     metric_collection = db.collection('teenmetrics')
     for tm_entry in teenmetrics:
@@ -201,16 +191,20 @@ def parse_routeplan_output(routeplanoutput):
             curr_data = docs[0].to_dict()
             curr_totaldrivinghours = curr_data['totaldrivinghours']
             curr_totalservicehours = curr_data['totalservicehours']
+            curr_totalmilesdriven = curr_data['totalmilesdriven']
         else:
             doc_id = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20))
             curr_totaldrivinghours = 0
             curr_totalservicehours = 0
+            curr_totalmilesdriven = 0
         tm_entry['totaldrivinghours'] = curr_totaldrivinghours + tm_entry['drivinghoursearned']
         tm_entry['totalservicehours'] = curr_totalservicehours + tm_entry['servicehoursearned']
-        metric_collection.document(doc_id).set(tm_entry)
-    #print(teenmetrics)
+        tm_entry['totalmilesdriven'] = curr_totalmilesdriven + tm_entry['milesdriven']
+        #metric_collection.document(doc_id).set(tm_entry)
+    print(teenmetrics)
 
 
+#Main app
 
 app = Flask(__name__)
 
