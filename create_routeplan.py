@@ -14,12 +14,12 @@ from routeplan_utilities import reverse_loc, hr_min_from_seconds, route_distance
 firebase_cred = credentials.Certificate('./serviceAccountKey.json')
 fapp = firebase_admin.initialize_app(firebase_cred)
 
+routeplan_datetime = datetime.utcnow()
+routeplan_date = routeplan_datetime.date()
+
 with open('./routeplanParams.json') as pfile:
     tfold_data = json.load(pfile)
-
 routeplan_url = tfold_data['timefold_url']
-routeplan_datetime = datetime.utcnow()
-routeplan_day = routeplan_datetime.date()
 maps_api_key = tfold_data['maps_api_key']
 
 
@@ -37,13 +37,13 @@ def read_collection(collection_name, document_id, result_list, persona):
         # Access the document data
         doc_data = doc_snapshot.to_dict()
         add_data_flag = False
-        if (persona=='customer' and doc_data['minStartTime'].date() == routeplan_day):
+        if (persona=='customer' and doc_data['minStartTime'].date() == routeplan_date):
             hardcode_values = {'serviceDuration':1200.000000000, 'vehicle':None, 'previousCustomer':None, 'nextCustomer': None,
                                 'arrivalTime':None, 'startServiceTime':None, 'departureTime':None,
                                 'drivingTimeSecondsFromPreviousStandstill': None}
             doc_data.update(hardcode_values)
             add_data_flag = True
-        elif (persona=='teendriver' and doc_data['departuretime'].date() == routeplan_day):
+        elif (persona=='teendriver' and doc_data['departuretime'].date() == routeplan_date):
             hardcode_values = {'customers':[], 'totalDemand':0, 'totalDrivingTimeSeconds':0}
             doc_data.update(hardcode_values)
             add_data_flag = True 
@@ -128,7 +128,7 @@ def parse_routeplan_output(routeplanoutput):
 
     routeplans = []
     teenmetrics = []
-    routeplan_day_str = routeplan_day.strftime('%b %d, %Y')
+    routeplan_date_str = routeplan_date.strftime('%b %d, %Y')
     for veh in vehicles:
         #print(veh)
         depot = list(filter(lambda d: d['id'] == veh['depot'], routeplanoutput['depots']))
@@ -234,6 +234,21 @@ app = Flask(__name__)
 @app.route("/", methods=["GET"])
 def create_routeplans():
 
+    db = firestore.client()
+    serveit_collection = db.collection('serveitmetrics')
+    docs = serveit_collection.get()
+    if docs:
+        doc_id = docs[0].id
+        smetrics = serveit_collection.document(doc_id).get().to_dict()
+        if 'lastserveddate' in smetrics: 
+            last_served_date = smetrics['lastserveddate'].date()
+        else:
+            last_served_date = date(1970,1,1)
+    else:
+        last_served_date = date(1970,1,1)
+    if last_served_date >= routeplan_date:
+        return("Routeplan will not be created for past date")
+
     routeplaninput = {"name": "demo","southWestCorner": [36.044659, -80.244217], "northEastCorner": [36.099861,-79.766235],
                         "startDateTime": "2024-01-01T07:30:00", "endDateTime": "2024-02-28T00:00:00", 
                         "depots": [], "vehicles": [], "customers": [], "totalDrivingTimeSeconds": 0}
@@ -244,6 +259,8 @@ def create_routeplans():
     with open(routeplan_input_file, 'w') as json_file:
         json.dump(routeplaninput, json_file, indent=2)
 
+    if not routeplaninput['vehicles']:
+        return("No drivers available for route planning!")
 
     timefold_url = tfold_data['timefold_url']
     headers = {"Content-Type": "application/json", "Accept": "text/plain"}
