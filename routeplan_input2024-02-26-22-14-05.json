@@ -1,0 +1,257 @@
+{
+  "name": "demo",
+  "southWestCorner": [
+    36.044659,
+    -80.244217
+  ],
+  "northEastCorner": [
+    36.099861,
+    -79.766235
+  ],
+  "startDateTime": "2024-01-01T07:30:00",
+  "endDateTime": "2024-02-28T00:00:00",
+  "depots": [
+    {
+      "id": "1",
+      "location": [
+        36.0642558,
+        -79.7941264
+      ]
+    },
+    {
+      "id": "2",
+      "location": [
+        36.05508409999999,
+        -79.8748821
+      ]
+    }
+  ],
+  "vehicles": [
+    {
+      "depot": "2",
+      "id": "eGulG8pX3UcyEUVGeBqlC2iQGk83",
+      "capacity": 9,
+      "name": "Teen2",
+      "customers": [],
+      "totalDemand": 0,
+      "totalDrivingTimeSeconds": 0,
+      "departureTime": "2024-02-27T14:00:00",
+      "arrivalTime": "2024-02-28T02:00:00"
+    },
+    {
+      "depot": "1",
+      "id": "gV6aTEKyk7aCSnz1ce172c1x5hY2",
+      "capacity": 9,
+      "name": "Teen1",
+      "customers": [],
+      "totalDemand": 0,
+      "totalDrivingTimeSeconds": 0,
+      "departureTime": "2024-02-27T14:00:00",
+      "arrivalTime": "2024-02-28T02:00:00"
+    },
+    {
+      "depot": "1",
+      "id": "DuErxhrXsyZH8uV5sVXipmA88kv1",
+      "capacity": 9,
+      "name": "Teen3",
+      "customers": [],
+      "totalDemand": 0,
+      "totalDrivingTimeSeconds": 0,
+      "departureTime": "2024-02-27T14:00:00",
+      "arrivalTime": "2024-02-28T02:00:00"
+    }
+  ],
+  "customers": [
+    {
+      "demand": 1,
+      "id": "BB9pco5FCNOC3jWOsCUKjtNU9BE3",
+      "location": [
+        36.0734182,
+        -79.7932502
+      ],
+      "minStartTime": "2024-02-27T14:00:00",
+      "name": "Donor 9",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:00:00"
+    },
+    {
+      "demand": 1,
+      "minStartTime": "2024-02-27T14:20:00",
+      "id": "3PNImgKlymVwiy5WNYcCZnf6FzM2",
+      "location": [
+        36.0664537,
+        -79.7915541
+      ],
+      "name": "Donor 10",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:20:00"
+    },
+    {
+      "demand": 2,
+      "minStartTime": "2024-02-27T14:17:00",
+      "id": "iJTYMnWLVMht0anPwwUzL1O2jBS2",
+      "location": [
+        36.1600895,
+        -79.8673207
+      ],
+      "name": "Donor4",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:17:00"
+    },
+    {
+      "demand": 1,
+      "minStartTime": "2024-02-27T14:15:00",
+      "id": "cp9ec3894bO3TEY6hVRR2R8OZit1",
+      "location": [
+        36.1530647,
+        -79.7973003
+      ],
+      "name": "Donor1",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:15:00"
+    },
+    {
+      "demand": 2,
+      "id": "vHunBIaq1LdPNrIFPqHGnAvkAD32",
+      "location": [
+        36.1548091,
+        -79.8143856
+      ],
+      "minStartTime": "2024-02-27T14:15:00",
+      "name": "Donor2",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:15:00"
+    },
+    {
+      "demand": 1,
+      "id": "2gHjeCSY29cBHcIKfjPG8HS11im2",
+      "location": [
+        36.0807223,
+        -79.8466993
+      ],
+      "minStartTime": "2024-02-27T14:16:00",
+      "name": "Donor3",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:16:00"
+    },
+    {
+      "demand": 1,
+      "id": "kyUwUdfjlffaOJYUzYr9NxD5lyI2",
+      "location": [
+        36.1235568,
+        -79.8312186
+      ],
+      "minStartTime": "2024-02-27T14:21:00",
+      "name": "Donor 8",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:00:00"
+    },
+    {
+      "demand": 1,
+      "id": "4lD17aNQwrW2THfPTfsgeLgoCHn2",
+      "location": [
+        36.1071925,
+        -79.8579166
+      ],
+      "minStartTime": "2024-02-27T14:18:00",
+      "name": "Donor6",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:18:00"
+    },
+    {
+      "demand": 1,
+      "id": "WJ5APwSiRya3vCTXUqyfMuAgfSs2",
+      "location": [
+        36.1345744,
+        -79.84637339999999
+      ],
+      "minStartTime": "2024-02-27T14:18:00",
+      "name": "Donor 7",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:00:00"
+    },
+    {
+      "demand": 2,
+      "id": "PPzPe1DhIXSjARNxZnMDuK3ATu62",
+      "location": [
+        36.0734553,
+        -79.789757
+      ],
+      "minStartTime": "2024-02-27T14:17:00",
+      "name": "Donor5",
+      "serviceDuration": 1200.0,
+      "vehicle": null,
+      "previousCustomer": null,
+      "nextCustomer": null,
+      "arrivalTime": null,
+      "startServiceTime": null,
+      "departureTime": null,
+      "drivingTimeSecondsFromPreviousStandstill": null,
+      "maxEndTime": "2024-02-28T02:17:00"
+    }
+  ],
+  "totalDrivingTimeSeconds": 0
+}
