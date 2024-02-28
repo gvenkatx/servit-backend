@@ -23,6 +23,7 @@ routeplan_day = routeplan_datetime.date()
 maps_api_key = tfold_data['maps_api_key']
 
 
+
 # Utility function for gathering data from firebase documents
 def read_collection(collection_name, document_id, result_list, persona):
 
@@ -213,7 +214,8 @@ def parse_routeplan_output(routeplanoutput):
         serveit_numdonated += tm_entry['cansdonated']
     #print(teenmetrics)
     serveit_metrics = {'totalmilesdriven': serveit_milesdriven, 'totaldrivinghours': serveit_drivinghours,
-                       'totalservicehours': serveit_servicehours, 'numdonated': serveit_numdonated}
+                       'totalservicehours': serveit_servicehours, 'numdonated': serveit_numdonated,
+                       'lastserveddate': routeplan_datetime}
     serveit_collection = db.collection('serveitmetrics')
     docs = serveit_collection.get()
     if docs:
