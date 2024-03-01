@@ -79,3 +79,8 @@ def route_distance_and_duration(stops_lat_long, api_key):
 
     total_hours, total_mins = divmod(total_duration_minutes, 60)
     return(total_distance_miles, total_duration_minutes)
+
+
+def delete_docs_in_collection(coll_ref, doc_ids):
+    for id in doc_ids:
+        coll_ref.document(id).delete()
