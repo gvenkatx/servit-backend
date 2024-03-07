@@ -5,7 +5,7 @@ from firebase_admin import db
 from firebase_admin import credentials, firestore
 import json
 from google.cloud.firestore_v1 import GeoPoint
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import requests
 import time
 from flask import Flask, request
@@ -30,16 +30,24 @@ def read_collection(coll_ref, result_list, persona):
     for doc_snapshot in coll_ref.stream():
         doc_data = doc_snapshot.to_dict()
         add_data_flag = False
-        if (persona=='customer' and doc_data['minStartTime'].date() == routeplan_date):
-            hardcode_values = {'serviceDuration':1200.000000000, 'vehicle':None, 'previousCustomer':None, 'nextCustomer': None,
-                               'arrivalTime':None, 'startServiceTime':None, 'departureTime':None,
-                               'drivingTimeSecondsFromPreviousStandstill': None}
-            doc_data.update(hardcode_values)
-            add_data_flag = True
-        elif (persona=='teendriver' and doc_data['departuretime'].date() == routeplan_date):
-            hardcode_values = {'customers':[], 'totalDemand':0, 'totalDrivingTimeSeconds':0}
-            doc_data.update(hardcode_values)
-            add_data_flag = True 
+        #if (persona=='customer' and doc_data['minStartTime'].date() == routeplan_date):
+        if (persona=='customer'):
+            doc_data['minStartTime'] += timedelta(days=1)
+            doc_data['maxStartTime'] += timedelta(days=1)
+            if (doc_data['minStartTime'].date() == routeplan_date):
+                hardcode_values = {'serviceDuration':1200.000000000, 'vehicle':None, 'previousCustomer':None, 'nextCustomer': None,
+                                    'arrivalTime':None, 'startServiceTime':None, 'departureTime':None,
+                                    'drivingTimeSecondsFromPreviousStandstill': None}
+                doc_data.update(hardcode_values)
+                add_data_flag = True
+        #elif (persona=='teendriver' and doc_data['departuretime'].date() == routeplan_date):
+        elif (persona=='teendriver'):
+            doc_data['departuretime'] += timedelta(days=1)
+            doc_data['arrivaltime'] += timedelta(days=1)
+            if (doc_data['departuretime'].date() == routeplan_date):
+                hardcode_values = {'customers':[], 'totalDemand':0, 'totalDrivingTimeSeconds':0}
+                doc_data.update(hardcode_values)
+                add_data_flag = True 
         elif (persona=='depot'):
             add_data_flag = True
         else: None
