@@ -116,8 +116,8 @@ def parse_routeplan_output(firestore_db,routeplanoutput):
         depot = list(filter(lambda d: d['id'] == veh['depot'], routeplanoutput['depots']))
         from_addr = depot[0]['address']
         from_loc = GeoPoint(depot[0]['location'][0], depot[0]['location'][1])
-        gmaps_url = "http://google.com/maps/dir/?api=1&origin="+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
-        +"&destination="+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])+"&waypoints="
+        gmaps_url = ("https://google.com/maps/dir/?api=1&origin="+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
+        +"&destination="+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])+"&waypoints=")
         driving_hours_earned = hr_min_from_seconds(veh['totalDrivingTimeSeconds'])
         stop_num = 0
         stops_lat_long = [(depot[0]['location'][0], depot[0]['location'][1])]
