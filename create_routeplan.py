@@ -116,7 +116,8 @@ def parse_routeplan_output(firestore_db,routeplanoutput):
         depot = list(filter(lambda d: d['id'] == veh['depot'], routeplanoutput['depots']))
         from_addr = depot[0]['address']
         from_loc = GeoPoint(depot[0]['location'][0], depot[0]['location'][1])
-        gmaps_url = "http://google.com/maps/dir/"+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
+        gmaps_url = "http://google.com/maps/dir/?api=1&origin="+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
+        +"&destination="+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])+"&waypoints="
         driving_hours_earned = hr_min_from_seconds(veh['totalDrivingTimeSeconds'])
         stop_num = 0
         stops_lat_long = [(depot[0]['location'][0], depot[0]['location'][1])]
@@ -128,7 +129,7 @@ def parse_routeplan_output(firestore_db,routeplanoutput):
             stop_addr = cust[0]['address']
             stop_loc = GeoPoint(cust[0]['location'][0], cust[0]['location'][1])
             stops_lat_long.append((cust[0]['location'][0], cust[0]['location'][1]))
-            gmaps_url += "/"+str(cust[0]['location'][0])+","+str(cust[0]['location'][1])
+            gmaps_url += str(cust[0]['location'][0])+","+str(cust[0]['location'][1])+"|"
             stop_name = cust[0]['name']
             service_duration += hr_min_from_seconds(cust[0]['serviceDuration'])
 
@@ -144,7 +145,7 @@ def parse_routeplan_output(firestore_db,routeplanoutput):
         stop_addr = depot[0]['address']
         stop_loc = GeoPoint(depot[0]['location'][0], depot[0]['location'][1])
         stops_lat_long.append((depot[0]['location'][0], depot[0]['location'][1]))
-        gmaps_url += "/"+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
+        #gmaps_url += "/"+str(depot[0]['location'][0])+","+str(depot[0]['location'][1])
         (total_distance_miles, total_duration_minutes) = route_distance_and_duration(stops_lat_long, maps_api_key)
         #print(f"Total Distance: {total_distance_miles} miles, Total Duration: {total_duration_minutes} minutes")
 
