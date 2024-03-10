@@ -155,7 +155,7 @@ def parse_routeplan_output(firestore_db,routeplanoutput):
 
         tm_entry = {'teenid': veh['id'], 'dateserved': routeplan_datetime, 'drivinghoursearned': total_duration_minutes,
                     'servicehoursearned': total_duration_minutes+service_duration, 'cansdonated': veh['totalDemand'],
-                    'milesdriven': total_distance_miles, 'routeplanurl': gmaps_url}
+                    'milesdriven': round(total_distance_miles), 'routeplanurl': gmaps_url} #'displaymetrics': False
         teenmetrics.append(tm_entry)
 
     rplan_collection = firestore_db.collection('routeplanui')
