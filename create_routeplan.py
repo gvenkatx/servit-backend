@@ -212,9 +212,10 @@ def parse_routeplan_output(firestore_db,routeplanoutput):
 
 #Main app
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
-@app.route("/", methods=["GET"])
+#@app.route("/", methods=["GET"])
+
 def create_routeplans():
 
     db = firestore.client()
@@ -268,5 +269,7 @@ def create_routeplans():
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=5051, debug=True)
+    #app.run(host="localhost", port=5051, debug=True)
+    result = create_routeplans()
+    print(result)
 
